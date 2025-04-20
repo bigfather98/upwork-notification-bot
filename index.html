@@ -229,8 +229,10 @@
                 return;
             }
 
+            const webhookUrl = "https://n8n.kmonlinesolutions.com/webhook-test/upwork-update-keywords";
+            
             try {
-                const response = await fetch(`https://n8n.kmonlinesolutions.com/webhook/upwork-update-keywords`, {
+                const response = await fetch(webhookUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ chat_id, keyword1: keywords[0], keyword2: keywords[1], keyword3: keywords[2], keyword4: keywords[3], keyword5: keywords[4] }),
