@@ -180,7 +180,7 @@
 
         async function loadKeywords(chat_id) {
             try {
-                const res = await fetch(`https://n8n.kmonlinesolutions.com/webhook-test/upwork-get-keywords?chat_id=${chat_id}`);
+                const res = await fetch(`https://n8n.kmonlinesolutions.com/webhook/upwork-get-keywords?chat_id=${chat_id}`);
                 const data = await res.json();
                 if (data.keywords && Array.isArray(data.keywords)) {
                     for (let i = 0; i < 5; i++) {
@@ -230,7 +230,7 @@
             }
 
             try {
-                const response = await fetch(webhookUrl, {
+                const response = await fetch(`https://n8n.kmonlinesolutions.com/webhook/upwork-update-keywords`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ chat_id, keyword1: keywords[0], keyword2: keywords[1], keyword3: keywords[2], keyword4: keywords[3], keyword5: keywords[4] }),
