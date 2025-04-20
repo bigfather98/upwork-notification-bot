@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upwork Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary-color: #09afb8ff;
+            --light-gray: #f4f4f4;
+            --medium-gray: #9e9e9ea9;
+            --dark-gray: #333333;
+            --white: #ffffff;
+            --base-font-size: 16px;
+            --spacing-unit: 1rem;
+            --input-border-radius: 8px;
+            --button-border-radius: 25px;
+            --input-padding: 0.75rem;
+            --input-border-color: #d0d7de;
+            --focus-shadow: 0 0 0 2px rgba(16,138,0,0.25);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--white);
+            color: var(--dark-gray);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.875rem;
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: var(--medium-gray);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .keyword-input {
+            padding: var(--input-padding);
+            border: 1px solid var(--input-border-color);
+            border-radius: var(--input-border-radius);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+            text-align: center; /* Added center alignment */
+        }
+
+        .keyword-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: var(--focus-shadow);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #09afb8ff 0%, #09afb8ff 100%);
+            color: var(--white);
+            border: none;
+            border-radius: var(--button-border-radius);
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(9,175,184,0);
+        }
+
+        .spinner {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: var(--white);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--medium-gray);
+            font-size: 0.875rem;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 0.25rem;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .keyword-input {
+                font-size: 0.9rem;
+            }
+            
+            .submit-button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Upwork Bot</h2></br>
+            <p>Enter up to 5 keywords to update your job alerts</p>
+            <p></br>The bot copy-pastes your keyword in Upwork's search bar. To make sure its working, you may try your each of your keyword in Upwork's website first </p>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="kw1" class="keyword-input" placeholder="Enter keyword 1">
+            <input type="text" id="kw2" class="keyword-input" placeholder="Enter keyword 2">
+            <input type="text" id="kw3" class="keyword-input" placeholder="Enter keyword 3">
+            <input type="text" id="kw4" class="keyword-input" placeholder="Enter keyword 4">
+            <input type="text" id="kw5" class="keyword-input" placeholder="Enter keyword 5">
+        </div>
+        
+        <button id="submit" class="submit-button">Update Keywords</button>
+        
+        <div class="footer">
+            <a href="https://t.me/upworkbotgroup" target="_blank">📢 Join Telegram Group to get News and Updates</a> 
+        </div>
+    </div>
+
+    <script>
+        window.Telegram.WebApp.expand();
+        const tg = window.Telegram.WebApp;
+        const submitButton = document.getElementById("submit");
+        const originalButtonText = submitButton.innerHTML;
+
+        const inputFields = [
+            document.getElementById("kw1"),
+            document.getElementById("kw2"),
+            document.getElementById("kw3"),
+            document.getElementById("kw4"),
+            document.getElementById("kw5")
+        ];
+
+        async function loadKeywords(chat_id) {
+            try {
+                const res = await fetch(`https://n8n.kmonlinesolutions.com/webhook-test/upwork-get-keywords?chat_id=${chat_id}`);
+                const data = await res.json();
+                if (data.keywords && Array.isArray(data.keywords)) {
+                    for (let i = 0; i < 5; i++) {
+                        if (data.keywords[i]) {
+                            inputFields[i].value = data.keywords[i];
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching keywords:", err);
+            }
+        }
+
+        submitButton.addEventListener("click", async () => {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<div class="loading-container"><span class="spinner"></span><span>Updating...</span></div>';
+
+            const chat_id = userData?.id;
+            if (!chat_id) {
+                tg.showPopup({ title: 'Error', message: 'Could not get user information. Please restart the app.', buttons: [{type: 'ok'}] });
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+                return;
+            }
+
+            const specialCharRegex = /[^a-zA-Z0-9\s]/;
+            let validationFailed = false;
+
+            const keywords = inputFields.map((field, i) => {
+                const val = field.value.trim();
+                if (val && specialCharRegex.test(val)) {
+                    tg.showPopup({
+                        title: 'Invalid Input',
+                        message: `Keyword ${i + 1} contains special characters. Only letters, numbers, and spaces are allowed.`,
+                        buttons: [{ type: 'ok' }]
+                    });
+                    validationFailed = true;
+                    return null;
+                }
+                return val;
+            });
+
+            if (validationFailed) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+                return;
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id, keyword1: keywords[0], keyword2: keywords[1], keyword3: keywords[2], keyword4: keywords[3], keyword5: keywords[4] }),
+                });
+
+                if (response.ok) {
+                    tg.showPopup({ title: 'Success', message: 'Keywords updated successfully!', buttons: [{ type: 'ok' }] });
+                    tg.close();
+                } else {
+                    const errorText = await response.text();
+                    console.error("POST failed:", response.status, errorText);
+                    let message = 'Failed to update keywords. Please try again.';
+                    if (response.status === 400) {
+                        message = 'Failed to update keywords due to invalid data. Please check your input.';
+                    } else if (response.status >= 500) {
+                        message = 'Server error while updating keywords. Please try again later.';
+                    }
+                    tg.showPopup({
+                        title: 'Error',
+                        message: message,
+                        buttons: [{ type: 'ok' }]
+                    });
+                }
+            } catch (error) {
+                console.error("Network error:", error);
+                tg.showPopup({
+                    title: 'Connection Error',
+                    message: 'Failed to connect to the server. Please check your internet connection and try again.',
+                    buttons: [{ type: 'ok' }]
+                });
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+
+        if (userData?.id) {
+            loadKeywords(userData.id);
+        } else {
+            console.warn("User data not available for initial load.");
+        }
+    </script>
+</body>
+</html>
