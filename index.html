@@ -487,6 +487,13 @@
                         </div>
                     </div>
 
+                    <!-- Rating -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Rating</h3>
+                        <div class="button-grid cols-3" id="ratingGrid">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
 
                     <!-- Salary Type -->
                     <div class="filter-section">
@@ -591,6 +598,7 @@
         let filters = {
             paymentVerified: null, // No default selected
             totalSpent: null, // No default selected
+            rating: null, // No default selected
             salary: [], // No default selected
             experienceLevel: [], // No default selected
             projectLength: [], // No default selected
@@ -601,7 +609,8 @@
 
         // Filter options
         const filterOptions = {
-            totalSpent: ['0+', '100+', '1,000+', '10,000+', '100,000+'],
+            totalSpent: ['>0', '>100', '>1,000', '>10,000', '>100,000'],
+            rating: ['>0⭐', '>1⭐', '>2⭐', '>3⭐', '>4⭐'],
             salary: ['Hourly', 'Fixed-Price'],
             experienceLevel: ['Entry Level', 'Intermediate', 'Expert'],
             projectLength: ['Less than one month', '1 to 3 months', '3 to 6 months', 'More than 6 months'],
@@ -744,6 +753,7 @@
             filters = {
                 paymentVerified: false,
                 totalSpent: '',
+                rating: '>0⭐', // Reset to default
                 salary: ['Hourly', 'Fixed-Price'],
                 experienceLevel: ['Entry Level', 'Intermediate', 'Expert'],
                 projectLength: ['Less than one month', '1 to 3 months', '3 to 6 months', 'More than 6 months'],
@@ -775,6 +785,7 @@
             
             if (filters.paymentVerified) count++;
             if (filters.totalSpent) count++;
+            if (filters.rating !== '>0⭐') count++; // Count only if not the default value
             if (filters.salary.length < filterOptions.salary.length) count++; // Count if any salary option is deselected
             if (filters.experienceLevel.length < filterOptions.experienceLevel.length) count++; // Count if any experience level is deselected
             if (filters.projectLength.length < filterOptions.projectLength.length) count++; // Count if any project length is deselected
@@ -829,6 +840,11 @@
                     updateButtonStates('totalSpent');
                 }
 
+                // Rating (single select)
+                if (webhookFilters.hasOwnProperty('rating')) {
+                    filters.rating = webhookFilters.rating;
+                    updateButtonStates('rating');
+                }
 
                 // Salary Type (multi-select)
                 if (webhookFilters.hasOwnProperty('salary') && Array.isArray(webhookFilters.salary)) {
@@ -934,6 +950,7 @@
             const payloadFilters = {
                 paymentVerified: filters.paymentVerified,
                 totalSpent: filters.totalSpent,
+                rating: filters.rating,
                 salary: filters.salary,
                 experienceLevel: filters.experienceLevel,
                 projectLength: filters.projectLength,
