@@ -583,15 +583,15 @@
 
         // Filter state
         let filters = {
-            paymentVerified: false,
-            totalSpent: '',
-            rating: '>0⭐', // Single select with default
-            salary: ['Hourly', 'Fixed-Price'],
-            experienceLevel: ['Entry Level', 'Intermediate', 'Expert'],
-            projectLength: ['Less than one month', '1 to 3 months', '3 to 6 months', 'More than 6 months'],
-            hoursPerWeek: ['Less than 30 hrs/week', 'More than 30 hrs/week'],
-            hourlyMinimum: '',
-            fixedPriceMinimum: ''
+            paymentVerified: null, // No default selected
+            totalSpent: null, // No default selected
+            rating: null, // No default selected
+            salary: [], // No default selected
+            experienceLevel: [], // No default selected
+            projectLength: [], // No default selected
+            hoursPerWeek: [], // No default selected
+            hourlyMinimum: null, // No default selected
+            fixedPriceMinimum: null // No default selected
         };
 
         // Filter options
