@@ -811,31 +811,69 @@
                     }
                 }
 
-                // Load and apply filters if they exist in the response
-                if (data.filters) {
-                    // Merge loaded filters with the current state
-                    filters = { ...filters, ...data.filters };
-                    
-                    // Update UI elements based on loaded filters
-                    if (data.filters.paymentVerified) {
-                        document.getElementById('paymentVerified').checked = true;
-                    }
-                    if (data.filters.hourlyMinimum) {
-                        document.getElementById('hourlyMinimum').value = data.filters.hourlyMinimum;
-                        document.getElementById('hourlyMinimum').classList.add('has-value');
-                    }
-                    if (data.filters.fixedPriceMinimum) {
-                        document.getElementById('fixedPriceMinimum').value = data.filters.fixedPriceMinimum;
-                        document.getElementById('fixedPriceMinimum').classList.add('has-value');
-                    }
-                    
-                    // Update the visual state of filter buttons
-                    Object.keys(filterOptions).forEach(filterType => {
-                        updateButtonStates(filterType);
-                    });
-                    
-                    updateFilterCount(); // Recalculate and update the filter count
+                // Determine the source of filter data
+                const webhookFilters = data.filters || data; // Use data.filters if available, otherwise use data directly
+
+                // Update the filters object and UI elements based on webhook data
+                // Payment Verified
+                if (webhookFilters.hasOwnProperty('paymentVerified')) {
+                    filters.paymentVerified = webhookFilters.paymentVerified;
+                    document.getElementById('paymentVerified').checked = !!filters.paymentVerified; // Use !! to convert to boolean true/false
                 }
+
+                // Total Spent (single select)
+                if (webhookFilters.hasOwnProperty('totalSpent')) {
+                    filters.totalSpent = webhookFilters.totalSpent;
+                    updateButtonStates('totalSpent');
+                }
+
+                // Rating (single select)
+                if (webhookFilters.hasOwnProperty('rating')) {
+                    filters.rating = webhookFilters.rating;
+                    updateButtonStates('rating');
+                }
+
+                // Salary Type (multi-select)
+                if (webhookFilters.hasOwnProperty('salary') && Array.isArray(webhookFilters.salary)) {
+                    filters.salary = webhookFilters.salary;
+                    updateButtonStates('salary');
+                }
+
+                // Experience Level (multi-select)
+                if (webhookFilters.hasOwnProperty('experienceLevel') && Array.isArray(webhookFilters.experienceLevel)) {
+                    filters.experienceLevel = webhookFilters.experienceLevel;
+                    updateButtonStates('experienceLevel');
+                }
+
+                // Project Length (multi-select)
+                if (webhookFilters.hasOwnProperty('projectLength') && Array.isArray(webhookFilters.projectLength)) {
+                    filters.projectLength = webhookFilters.projectLength;
+                    updateButtonStates('projectLength');
+                }
+
+                // Hours per Week (multi-select)
+                if (webhookFilters.hasOwnProperty('hoursPerWeek') && Array.isArray(webhookFilters.hoursPerWeek)) {
+                    filters.hoursPerWeek = webhookFilters.hoursPerWeek;
+                    updateButtonStates('hoursPerWeek');
+                }
+
+                // Hourly Minimum
+                if (webhookFilters.hasOwnProperty('hourlyMinimum')) {
+                    filters.hourlyMinimum = webhookFilters.hourlyMinimum;
+                    const hourlyMinInput = document.getElementById('hourlyMinimum');
+                    hourlyMinInput.value = filters.hourlyMinimum;
+                    hourlyMinInput.classList.toggle('has-value', !!filters.hourlyMinimum);
+                }
+
+                // Fixed-Price Minimum
+                if (webhookFilters.hasOwnProperty('fixedPriceMinimum')) {
+                    filters.fixedPriceMinimum = webhookFilters.fixedPriceMinimum;
+                    const fixedPriceMinInput = document.getElementById('fixedPriceMinimum');
+                    fixedPriceMinInput.value = filters.fixedPriceMinimum;
+                    fixedPriceMinInput.classList.toggle('has-value', !!filters.fixedPriceMinimum);
+                }
+
+                updateFilterCount(); // Recalculate and update the filter count
             } catch (err) {
                 console.error("Error fetching keywords:", err);
             }
