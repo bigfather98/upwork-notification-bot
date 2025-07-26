@@ -654,10 +654,14 @@
 
         // Handle single select filters
         function handleSingleSelect(filterType, value) {
+            // If the clicked value is the currently selected one, do nothing (prevent deselection)
             if (filters[filterType] === value) {
-                filters[filterType] = ''; // Deselect if already selected
+                // Optionally, provide user feedback that at least one must be selected
+                console.log(`At least one option must be selected for ${filterType}.`);
+                return;
             } else {
-                filters[filterType] = value; // Select new value
+                // Select the new value
+                filters[filterType] = value;
             }
             updateButtonStates(filterType);
             updateFilterCount();
@@ -670,7 +674,15 @@
             
             if (isSelected) {
                 // Remove value if already selected
-                filters[filterType] = currentValues.filter(item => item !== value);
+                // Ensure at least one option remains selected for multi-select filters
+                if (currentValues.length > 1) {
+                    filters[filterType] = currentValues.filter(item => item !== value);
+                } else {
+                    // Optionally, provide user feedback that at least one must be selected
+                    // For now, we prevent deselection if it's the last one.
+                    console.log(`At least one option must be selected for ${filterType}.`);
+                    // You might want to show a popup or a message to the user here.
+                }
             } else {
                 // Add value if not selected
                 filters[filterType] = [...currentValues, value];
