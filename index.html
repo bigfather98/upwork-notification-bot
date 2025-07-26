@@ -897,15 +897,15 @@
             // Prepare the payload, sending only active filters to the webhook.
             // If a filter is not active (default or empty), send it as null.
             const payloadFilters = {
-                paymentVerified: filters.paymentVerified ? filters.paymentVerified : null,
-                totalSpent: filters.totalSpent ? filters.totalSpent : null,
-                rating: filters.rating !== '>0⭐' ? filters.rating : null,
-                salary: filters.salary.length < filterOptions.salary.length ? filters.salary : null,
-                experienceLevel: filters.experienceLevel.length < filterOptions.experienceLevel.length ? filters.experienceLevel : null,
-                projectLength: filters.projectLength.length < filterOptions.projectLength.length ? filters.projectLength : null,
-                hoursPerWeek: filters.hoursPerWeek.length < filterOptions.hoursPerWeek.length ? filters.hoursPerWeek : null,
-                hourlyMinimum: filters.hourlyMinimum ? filters.hourlyMinimum : null,
-                fixedPriceMinimum: filters.fixedPriceMinimum ? filters.fixedPriceMinimum : null
+                paymentVerified: filters.paymentVerified,
+                totalSpent: filters.totalSpent,
+                rating: filters.rating,
+                salary: filters.salary,
+                experienceLevel: filters.experienceLevel,
+                projectLength: filters.projectLength,
+                hoursPerWeek: filters.hoursPerWeek,
+                hourlyMinimum: filters.hourlyMinimum,
+                fixedPriceMinimum: filters.fixedPriceMinimum
             };
 
 
