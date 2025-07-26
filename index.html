@@ -552,12 +552,12 @@
         <div class="footer">
             <h4> 
                 <a href="https://t.me/upworkbotgroup" target="_blank">
-                    Join the Telegram group to get news and updates
+                   👉 Join the Telegram group to get news and updates
                 </a>
             </h4>
             <h4> 
                 <a href="https://t.me/oljphbot" target="_blank">
-                    Onlinejobsph bot is also available
+                   👉 Onlinejobsph bot is also available
                 </a>
             </h4>
         </div>
@@ -894,23 +894,25 @@
                 return;
             }
 
-            // Prepare the payload, sending only active filters to the backend
-            const activeFilters = {};
-            if (filters.paymentVerified) activeFilters.paymentVerified = true;
-            if (filters.totalSpent) activeFilters.totalSpent = filters.totalSpent;
-            if (filters.rating !== '>0⭐') activeFilters.rating = filters.rating;
-            if (filters.salary.length < filterOptions.salary.length) activeFilters.salary = filters.salary;
-            if (filters.experienceLevel.length < filterOptions.experienceLevel.length) activeFilters.experienceLevel = filters.experienceLevel;
-            if (filters.projectLength.length < filterOptions.projectLength.length) activeFilters.projectLength = filters.projectLength;
-            if (filters.hoursPerWeek.length < filterOptions.hoursPerWeek.length) activeFilters.hoursPerWeek = filters.hoursPerWeek;
-            if (filters.hourlyMinimum) activeFilters.hourlyMinimum = filters.hourlyMinimum;
-            if (filters.fixedPriceMinimum) activeFilters.fixedPriceMinimum = filters.fixedPriceMinimum;
+            // Prepare the payload, sending only active filters to the webhook.
+            // If a filter is not active (default or empty), send it as null.
+            const payloadFilters = {
+                paymentVerified: filters.paymentVerified ? filters.paymentVerified : null,
+                totalSpent: filters.totalSpent ? filters.totalSpent : null,
+                rating: filters.rating !== '>0⭐' ? filters.rating : null,
+                salary: filters.salary.length < filterOptions.salary.length ? filters.salary : null,
+                experienceLevel: filters.experienceLevel.length < filterOptions.experienceLevel.length ? filters.experienceLevel : null,
+                projectLength: filters.projectLength.length < filterOptions.projectLength.length ? filters.projectLength : null,
+                hoursPerWeek: filters.hoursPerWeek.length < filterOptions.hoursPerWeek.length ? filters.hoursPerWeek : null,
+                hourlyMinimum: filters.hourlyMinimum ? filters.hourlyMinimum : null,
+                fixedPriceMinimum: filters.fixedPriceMinimum ? filters.fixedPriceMinimum : null
+            };
 
 
             const payload = {
                 chat_id: chat_id,
                 keywords: keywords,
-                filters: activeFilters // Send only filters that have been changed from their defaults
+                filters: payloadFilters
             };
 
             try {
