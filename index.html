@@ -969,6 +969,9 @@
                     title: 'Success',
                     message: 'Your keywords and filters have been saved!',
                     buttons: [{ type: 'ok' }]
+                }, () => {
+                    // Close the Web App after the user clicks 'OK'
+                    tg.close();
                 });
 
                 // Optionally clear inputs or reset state after successful submission
