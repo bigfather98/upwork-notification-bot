@@ -778,7 +778,7 @@
             experienceLevel: [], // No default selected
             projectLength: [], // No default selected
             hoursPerWeek: [], // No default selected
-            country: [], // No default selected
+            country: ['All'], // "All" selected by default
             hourlyMinimum: null, // No default selected
             fixedPriceMinimum: null // No default selected
         };
@@ -793,6 +793,7 @@
         };
 
         const countryOptions = [
+            'All',
             'Afghanistan',
             'Albania',
             'Algeria',
@@ -891,6 +892,7 @@
         let isOpen = false;
         let countryMenuOpen = false;
         let countrySearchTerm = '';
+        const allCountriesOption = 'All';
 
         // Initialize the filter component
         function initializeFilter() {
@@ -1064,10 +1066,19 @@
         }
 
         function toggleCountrySelection(country) {
-            if (filters.country.includes(country)) {
-                filters.country = filters.country.filter(item => item !== country);
+            if (country === allCountriesOption) {
+                if (filters.country.includes(allCountriesOption)) {
+                    filters.country = filters.country.filter(item => item !== allCountriesOption);
+                } else {
+                    filters.country = [allCountriesOption];
+                }
             } else {
-                filters.country = [...filters.country, country];
+                const withoutAll = filters.country.filter(item => item !== allCountriesOption);
+                if (withoutAll.includes(country)) {
+                    filters.country = withoutAll.filter(item => item !== country);
+                } else {
+                    filters.country = [...withoutAll, country];
+                }
             }
 
             renderCountryChips();
@@ -1183,7 +1194,7 @@
                 experienceLevel: ['Entry Level', 'Intermediate', 'Expert'],
                 projectLength: ['Less than one month', '1 to 3 months', '3 to 6 months', 'More than 6 months'],
                 hoursPerWeek: ['Less than 30 hrs/week', 'More than 30 hrs/week'],
-                country: [],
+                country: [allCountriesOption],
                 hourlyMinimum: '',
                 fixedPriceMinimum: ''
             };
@@ -1220,7 +1231,7 @@
             if (filters.experienceLevel.length < filterOptions.experienceLevel.length) count++; // Count if any experience level is deselected
             if (filters.projectLength.length < filterOptions.projectLength.length) count++; // Count if any project length is deselected
             if (filters.hoursPerWeek.length < filterOptions.hoursPerWeek.length) count++; // Count if any hours per week is deselected
-            if (filters.country.length > 0) count++; // Count if country selections are active
+            if (filters.country.some(country => country !== allCountriesOption)) count++; // Count only specific country selections
             if (filters.hourlyMinimum) count++; // Count if hourly minimum is set
             if (filters.fixedPriceMinimum) count++; // Count if fixed-price minimum is set
 
@@ -1297,7 +1308,8 @@
 
                 // Country (multi-select)
                 if (webhookFilters.hasOwnProperty('country') && Array.isArray(webhookFilters.country)) {
-                    filters.country = webhookFilters.country;
+                    const sanitizedCountries = webhookFilters.country.filter(country => country !== allCountriesOption);
+                    filters.country = sanitizedCountries.length > 0 ? sanitizedCountries : [allCountriesOption];
                     countrySearchTerm = '';
                     document.getElementById('countrySearch').value = '';
                     renderCountryChips();
@@ -1388,7 +1400,7 @@
                 experienceLevel: filters.experienceLevel,
                 projectLength: filters.projectLength,
                 hoursPerWeek: filters.hoursPerWeek,
-                country: filters.country,
+                country: filters.country.includes(allCountriesOption) ? [] : filters.country,
                 hourlyMinimum: filters.hourlyMinimum,
                 fixedPriceMinimum: filters.fixedPriceMinimum
             };
