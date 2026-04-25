@@ -358,6 +358,174 @@
             box-shadow: 0 2px 8px rgba(20, 168, 0, 0.2);
         }
 
+        .country-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .country-trigger {
+            min-height: 56px;
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 10px 12px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .country-trigger:focus,
+        .country-trigger:focus-visible {
+            outline: none;
+            border-color: var(--upwork-light-green);
+            box-shadow: 0 0 0 2px rgba(20, 168, 0, 0.2);
+        }
+
+        .country-trigger.open {
+            border-color: var(--upwork-light-green);
+        }
+
+        .country-chip-area {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            min-height: 24px;
+        }
+
+        .country-placeholder {
+            color: #9ca3af;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .country-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(20, 168, 0, 0.12);
+            color: var(--upwork-dark-green);
+            font-size: 13px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .country-chip-remove {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(16, 138, 0, 0.14);
+            color: var(--upwork-dark-green);
+            cursor: pointer;
+            padding: 0;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .country-chip-remove:hover {
+            background: rgba(16, 138, 0, 0.22);
+        }
+
+        .country-trigger-chevron {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            transition: transform 0.2s ease;
+            color: #6b7280;
+        }
+
+        .country-trigger.open .country-trigger-chevron {
+            transform: rotate(180deg);
+        }
+
+        .country-menu {
+            margin-top: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .country-menu.hidden {
+            display: none;
+        }
+
+        .country-search {
+            width: 100%;
+            border: 0;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: var(--upwork-dark-gray);
+            outline: none;
+        }
+
+        .country-search::placeholder {
+            color: #9ca3af;
+        }
+
+        .country-options {
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .country-option {
+            width: 100%;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            color: #374151;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.08s ease;
+        }
+
+        .country-option + .country-option {
+            margin-top: 8px;
+        }
+
+        .country-option:hover {
+            background: #f3f4f6;
+        }
+
+        .country-option:active {
+            transform: scale(0.99);
+        }
+
+        .country-option.selected {
+            background: rgba(20, 168, 0, 0.12);
+            border-color: rgba(20, 168, 0, 0.35);
+            color: var(--upwork-dark-green);
+            font-weight: 600;
+        }
+
+        .country-empty {
+            padding: 12px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
         .input-container {
             position: relative;
         }
@@ -532,6 +700,25 @@
                             <!-- Will be populated by JavaScript -->
                         </div>
                     </div>
+
+                    <!-- Country -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Country</h3>
+                        <div class="country-select" id="countrySelect">
+                            <div class="country-trigger" id="countryTrigger" role="button" tabindex="0" aria-expanded="false">
+                                <div class="country-chip-area" id="countryChipArea">
+                                    <span id="countryPlaceholder" class="country-placeholder">Select countries</span>
+                                </div>
+                                <svg class="country-trigger-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                            <div id="countryMenu" class="country-menu hidden">
+                                <input type="text" id="countrySearch" class="country-search" placeholder="Search countries">
+                                <div id="countryOptions" class="country-options"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -590,6 +777,7 @@
             experienceLevel: [], // No default selected
             projectLength: [], // No default selected
             hoursPerWeek: [], // No default selected
+            country: [], // No default selected
             hourlyMinimum: null, // No default selected
             fixedPriceMinimum: null // No default selected
         };
@@ -603,11 +791,110 @@
             hoursPerWeek: ['Less than 30 hrs/week', 'More than 30 hrs/week']
         };
 
+        const countryOptions = [
+            'Afghanistan',
+            'Albania',
+            'Algeria',
+            'Argentina',
+            'Armenia',
+            'Australia',
+            'Austria',
+            'Azerbaijan',
+            'Bahamas',
+            'Bahrain',
+            'Bangladesh',
+            'Belarus',
+            'Belgium',
+            'Benin',
+            'Bolivia',
+            'Bosnia and Herzegovina',
+            'Brazil',
+            'Bulgaria',
+            'Cambodia',
+            'Cameroon',
+            'Canada',
+            'Chile',
+            'China',
+            'Colombia',
+            'Costa Rica',
+            'Croatia',
+            'Czech Republic',
+            'Denmark',
+            'Dominican Republic',
+            'Ecuador',
+            'Egypt',
+            'Estonia',
+            'Ethiopia',
+            'Finland',
+            'France',
+            'Georgia',
+            'Germany',
+            'Ghana',
+            'Greece',
+            'Guatemala',
+            'Honduras',
+            'Hungary',
+            'Iceland',
+            'India',
+            'Indonesia',
+            'Ireland',
+            'Israel',
+            'Italy',
+            'Jamaica',
+            'Japan',
+            'Jordan',
+            'Kazakhstan',
+            'Kenya',
+            'Kuwait',
+            'Latvia',
+            'Lebanon',
+            'Lithuania',
+            'Malaysia',
+            'Mexico',
+            'Morocco',
+            'Nepal',
+            'Netherlands',
+            'New Zealand',
+            'Nigeria',
+            'Norway',
+            'Pakistan',
+            'Peru',
+            'Philippines',
+            'Poland',
+            'Portugal',
+            'Romania',
+            'Saudi Arabia',
+            'Serbia',
+            'Singapore',
+            'Slovakia',
+            'Slovenia',
+            'South Africa',
+            'South Korea',
+            'Spain',
+            'Sri Lanka',
+            'Sweden',
+            'Switzerland',
+            'Taiwan',
+            'Thailand',
+            'Tunisia',
+            'Turkey',
+            'Ukraine',
+            'United Arab Emirates',
+            'United Kingdom',
+            'United States',
+            'Uruguay',
+            'Venezuela',
+            'Vietnam'
+        ];
+
         let isOpen = false;
+        let countryMenuOpen = false;
+        let countrySearchTerm = '';
 
         // Initialize the filter component
         function initializeFilter() {
             createFilterButtons();
+            initializeCountryFilter();
             updateFilterCount();
         }
 
@@ -635,6 +922,156 @@
                     grid.appendChild(button);
                 });
             });
+        }
+
+        function initializeCountryFilter() {
+            const trigger = document.getElementById('countryTrigger');
+            const search = document.getElementById('countrySearch');
+
+            trigger.addEventListener('click', toggleCountryMenu);
+            trigger.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleCountryMenu();
+                }
+            });
+
+            search.addEventListener('input', event => {
+                countrySearchTerm = event.target.value;
+                renderCountryOptions();
+            });
+
+            search.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeCountryMenu();
+                    trigger.focus();
+                }
+            });
+
+            document.addEventListener('click', handleCountryOutsideClick);
+
+            renderCountryChips();
+            renderCountryOptions();
+        }
+
+        function toggleCountryMenu() {
+            if (countryMenuOpen) {
+                closeCountryMenu();
+            } else {
+                openCountryMenu();
+            }
+        }
+
+        function openCountryMenu() {
+            countryMenuOpen = true;
+            const trigger = document.getElementById('countryTrigger');
+            const menu = document.getElementById('countryMenu');
+            const search = document.getElementById('countrySearch');
+
+            trigger.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+            menu.classList.remove('hidden');
+            renderCountryOptions();
+
+            window.setTimeout(() => {
+                search.focus();
+            }, 0);
+        }
+
+        function closeCountryMenu() {
+            countryMenuOpen = false;
+            const trigger = document.getElementById('countryTrigger');
+            const menu = document.getElementById('countryMenu');
+
+            trigger.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            menu.classList.add('hidden');
+        }
+
+        function handleCountryOutsideClick(event) {
+            const countrySelect = document.getElementById('countrySelect');
+            if (countrySelect && !countrySelect.contains(event.target)) {
+                closeCountryMenu();
+            }
+        }
+
+        function renderCountryChips() {
+            const chipArea = document.getElementById('countryChipArea');
+            const placeholder = document.getElementById('countryPlaceholder');
+
+            chipArea.innerHTML = '';
+
+            if (filters.country.length === 0) {
+                chipArea.appendChild(placeholder);
+                return;
+            }
+
+            filters.country.forEach(country => {
+                const chip = document.createElement('span');
+                chip.className = 'country-chip';
+
+                const label = document.createElement('span');
+                label.textContent = country;
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'country-chip-remove';
+                removeButton.setAttribute('aria-label', `Remove ${country}`);
+                removeButton.textContent = 'x';
+                removeButton.addEventListener('click', event => {
+                    event.stopPropagation();
+                    toggleCountrySelection(country);
+                });
+
+                chip.appendChild(label);
+                chip.appendChild(removeButton);
+                chipArea.appendChild(chip);
+            });
+        }
+
+        function renderCountryOptions() {
+            const optionsContainer = document.getElementById('countryOptions');
+            const selectedCountries = new Set(filters.country);
+            const query = countrySearchTerm.trim().toLowerCase();
+            const matches = countryOptions.filter(country => country.toLowerCase().includes(query));
+
+            optionsContainer.innerHTML = '';
+
+            if (matches.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'country-empty';
+                emptyState.textContent = 'No countries found';
+                optionsContainer.appendChild(emptyState);
+                return;
+            }
+
+            matches.forEach(country => {
+                const optionButton = document.createElement('button');
+                optionButton.type = 'button';
+                optionButton.className = `country-option${selectedCountries.has(country) ? ' selected' : ''}`;
+                optionButton.textContent = country;
+
+                if (selectedCountries.has(country)) {
+                    const checkmark = document.createElement('span');
+                    checkmark.textContent = 'Selected';
+                    optionButton.appendChild(checkmark);
+                }
+
+                optionButton.addEventListener('click', () => toggleCountrySelection(country));
+                optionsContainer.appendChild(optionButton);
+            });
+        }
+
+        function toggleCountrySelection(country) {
+            if (filters.country.includes(country)) {
+                filters.country = filters.country.filter(item => item !== country);
+            } else {
+                filters.country = [...filters.country, country];
+            }
+
+            renderCountryChips();
+            renderCountryOptions();
+            updateFilterCount();
         }
 
         // Toggle filter panel
@@ -745,6 +1182,7 @@
                 experienceLevel: ['Entry Level', 'Intermediate', 'Expert'],
                 projectLength: ['Less than one month', '1 to 3 months', '3 to 6 months', 'More than 6 months'],
                 hoursPerWeek: ['Less than 30 hrs/week', 'More than 30 hrs/week'],
+                country: [],
                 hourlyMinimum: '',
                 fixedPriceMinimum: ''
             };
@@ -757,12 +1195,17 @@
             document.getElementById('hourlyMinimum').classList.remove('has-value');
             document.getElementById('fixedPriceMinimum').value = '';
             document.getElementById('fixedPriceMinimum').classList.remove('has-value');
+            document.getElementById('countrySearch').value = '';
+            countrySearchTerm = '';
+            closeCountryMenu();
 
             // Reset all filter button states
             Object.keys(filterOptions).forEach(filterType => {
                 updateButtonStates(filterType);
             });
 
+            renderCountryChips();
+            renderCountryOptions();
             updateFilterCount(); // Update the count display
         }
 
@@ -776,6 +1219,7 @@
             if (filters.experienceLevel.length < filterOptions.experienceLevel.length) count++; // Count if any experience level is deselected
             if (filters.projectLength.length < filterOptions.projectLength.length) count++; // Count if any project length is deselected
             if (filters.hoursPerWeek.length < filterOptions.hoursPerWeek.length) count++; // Count if any hours per week is deselected
+            if (filters.country.length > 0) count++; // Count if country selections are active
             if (filters.hourlyMinimum) count++; // Count if hourly minimum is set
             if (filters.fixedPriceMinimum) count++; // Count if fixed-price minimum is set
 
@@ -848,6 +1292,15 @@
                 if (webhookFilters.hasOwnProperty('hoursPerWeek') && Array.isArray(webhookFilters.hoursPerWeek)) {
                     filters.hoursPerWeek = webhookFilters.hoursPerWeek;
                     updateButtonStates('hoursPerWeek');
+                }
+
+                // Country (multi-select)
+                if (webhookFilters.hasOwnProperty('country') && Array.isArray(webhookFilters.country)) {
+                    filters.country = webhookFilters.country;
+                    countrySearchTerm = '';
+                    document.getElementById('countrySearch').value = '';
+                    renderCountryChips();
+                    renderCountryOptions();
                 }
 
                 // Hourly Minimum
@@ -934,6 +1387,7 @@
                 experienceLevel: filters.experienceLevel,
                 projectLength: filters.projectLength,
                 hoursPerWeek: filters.hoursPerWeek,
+                country: filters.country,
                 hourlyMinimum: filters.hourlyMinimum,
                 fixedPriceMinimum: filters.fixedPriceMinimum
             };
