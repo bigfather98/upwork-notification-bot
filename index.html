@@ -643,6 +643,25 @@
                         </label>
                     </div>
 
+                    <!-- Country -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Country</h3>
+                        <div class="country-select" id="countrySelect">
+                            <div class="country-trigger" id="countryTrigger" role="button" tabindex="0" aria-expanded="false">
+                                <div class="country-chip-area" id="countryChipArea">
+                                    <span id="countryPlaceholder" class="country-placeholder">Select countries</span>
+                                </div>
+                                <svg class="country-trigger-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                            <div id="countryMenu" class="country-menu hidden">
+                                <input type="text" id="countrySearch" class="country-search" placeholder="Search countries">
+                                <div id="countryOptions" class="country-options"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Total Spent -->
                     <div class="filter-section">
                         <h3 class="filter-title">Total Spent ($)</h3>
@@ -701,24 +720,6 @@
                         </div>
                     </div>
 
-                    <!-- Country -->
-                    <div class="filter-section">
-                        <h3 class="filter-title">Country</h3>
-                        <div class="country-select" id="countrySelect">
-                            <div class="country-trigger" id="countryTrigger" role="button" tabindex="0" aria-expanded="false">
-                                <div class="country-chip-area" id="countryChipArea">
-                                    <span id="countryPlaceholder" class="country-placeholder">Select countries</span>
-                                </div>
-                                <svg class="country-trigger-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </div>
-                            <div id="countryMenu" class="country-menu hidden">
-                                <input type="text" id="countrySearch" class="country-search" placeholder="Search countries">
-                                <div id="countryOptions" class="country-options"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
