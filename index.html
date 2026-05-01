@@ -621,7 +621,7 @@
     <div class="container">
         <div class="header">
             <h2>Upwork Bot</h2></br>
-            <h3>Enter up to 5 keywords for your job alerts</h3>
+            <h3>Enter up to 10 keywords for your job alerts</h3>
             <h3>The bot copy-pastes your keyword in Upwork's search bar. To make sure its working, you may try each of your keyword in Upwork's website first </h3>
         </div>
 
@@ -746,6 +746,11 @@
             <input type="text" id="kw3" class="keyword-input" placeholder="Enter keyword3">
             <input type="text" id="kw4" class="keyword-input" placeholder="Enter keyword4">
             <input type="text" id="kw5" class="keyword-input" placeholder="Enter keyword5">
+            <input type="text" id="kw6" class="keyword-input" placeholder="Enter keyword6">
+            <input type="text" id="kw7" class="keyword-input" placeholder="Enter keyword7">
+            <input type="text" id="kw8" class="keyword-input" placeholder="Enter keyword8">
+            <input type="text" id="kw9" class="keyword-input" placeholder="Enter keyword9">
+            <input type="text" id="kw10" class="keyword-input" placeholder="Enter keyword10">
         </div>
 
 
@@ -784,7 +789,12 @@
             document.getElementById("kw2"),
             document.getElementById("kw3"),
             document.getElementById("kw4"),
-            document.getElementById("kw5")
+            document.getElementById("kw5"),
+            document.getElementById("kw6"),
+            document.getElementById("kw7"),
+            document.getElementById("kw8"),
+            document.getElementById("kw9"),
+            document.getElementById("kw10")
         ];
 
         // Filter state
@@ -1276,7 +1286,7 @@
 
                 // Populate input fields with keywords if available
                 if (data.keywords && Array.isArray(data.keywords)) {
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < inputFields.length; i++) {
                         if (data.keywords[i]) {
                             inputFields[i].value = data.keywords[i];
                         }
