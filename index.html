@@ -775,12 +775,50 @@
     </div>
 
     <script>
-        // Ensure Telegram Web App SDK is initialized and ready
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // Expand WebApp to full screen
+        // Ensure Telegram Web App SDK is initialized and ready.
+        // Guarded because on some clients (e.g. proxy users, blocked telegram.org)
+        // the SDK script can fail to load or window.Telegram can be undefined.
+        let tg = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+            }
+        } catch (e) {
+            console.warn("Telegram WebApp SDK failed to initialize:", e);
+        }
 
-        const tg = window.Telegram.WebApp;
-        let userData = tg.initDataUnsafe.user;
+        // Fallback no-op object so calls like tg.showPopup / tg.close never throw
+        // if the real SDK never loaded (e.g. telegram.org blocked on their network).
+        if (!tg) {
+            tg = {
+                showPopup: (opts, cb) => {
+                    if (opts && opts.message) window.alert(opts.message);
+                    if (typeof cb === 'function') cb();
+                },
+                close: () => {},
+                initDataUnsafe: {}
+            };
+        }
+
+        // Read chat_id from the URL query string. This is always present because
+        // the bot builds the button URL with ?chat_id={{ $json.message.chat.id }},
+        // independent of whether Telegram's own initDataUnsafe is populated.
+        function getChatIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const raw = params.get('chat_id');
+            return raw ? raw.trim() : null;
+        }
+
+        let userData = tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+
+        // Prefer Telegram's own user id when available, fall back to the URL
+        // param when it isn't (proxy users, outdated clients, blocked SDK, etc).
+        function resolveChatId() {
+            return userData?.id || getChatIdFromUrl();
+        }
+
         const submitButton = document.getElementById("submit");
         const originalButtonText = submitButton.innerHTML;
 
@@ -1371,9 +1409,9 @@
             // Show loading indicator
             submitButton.innerHTML = '<div class="loading-container"><span class="spinner"></span><span>Loading...</span></div>';
 
-            const chat_id = userData?.id; // Get user chat ID from Telegram data
+            const chat_id = resolveChatId(); // Telegram initData first, URL query string fallback
             if (!chat_id) {
-                // Show error popup if user ID is not available
+                // Show error popup if user ID is not available from either source
                 tg.showPopup({ title: 'Error', message: 'Could not get user information. Please restart the app.', buttons: [{type: 'ok'}] });
                 submitButton.disabled = false; // Re-enable button
                 submitButton.innerHTML = originalButtonText; // Restore original button text
@@ -1490,11 +1528,11 @@
         // Initialize the filter component and load keywords when the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', () => {
             initializeFilter(); // Set up the filter buttons and initial count
-            const chat_id = userData?.id;
+            const chat_id = resolveChatId(); // Telegram initData first, URL query string fallback
             if (chat_id) {
                 loadKeywords(chat_id); // Fetch and load existing data if user ID is available
             } else {
-                console.warn("User ID not found, skipping keyword loading."); // Warn if user data is missing
+                console.warn("User ID not found (Telegram initData and URL param both empty), skipping keyword loading.");
             }
         });
 
