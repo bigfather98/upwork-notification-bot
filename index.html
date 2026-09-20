@@ -677,6 +677,25 @@
                         </div>
                     </div>
 
+                    <!-- Exclude Country -->
+                    <div class="filter-section">
+                        <h3 class="filter-title">Exclude Country</h3>
+                        <div class="country-select" id="excludeCountrySelect">
+                            <div class="country-trigger" id="excludeCountryTrigger" role="button" tabindex="0" aria-expanded="false">
+                                <div class="country-chip-area" id="excludeCountryChipArea">
+                                    <span id="excludeCountryPlaceholder" class="country-placeholder">Select countries to exclude</span>
+                                </div>
+                                <svg class="country-trigger-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                            <div id="excludeCountryMenu" class="country-menu hidden">
+                                <input type="text" id="excludeCountrySearch" class="country-search" placeholder="Search countries">
+                                <div id="excludeCountryOptions" class="country-options"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Total Spent -->
                     <div class="filter-section">
                         <h3 class="filter-title">Total Spent ($)</h3>
@@ -844,6 +863,7 @@
             projectLength: [], // No default selected
             hoursPerWeek: [], // No default selected
             country: ['All'], // "All" selected by default
+            excludeCountry: [], // Blank by default (no exclusions)
             hourlyMinimum: null, // No default selected
             fixedPriceMinimum: null // No default selected
         };
@@ -957,12 +977,17 @@
         let isOpen = false;
         let countryMenuOpen = false;
         let countrySearchTerm = '';
+        let excludeCountryMenuOpen = false;
+        let excludeCountrySearchTerm = '';
         const allCountriesOption = 'All';
+        // Exclude Country reuses the same values as Country, but has no "All" option.
+        const excludeCountryOptions = countryOptions.filter(country => country !== allCountriesOption);
 
         // Initialize the filter component
         function initializeFilter() {
             createFilterButtons();
             initializeCountryFilter();
+            initializeExcludeCountryFilter();
             updateFilterCount();
         }
 
@@ -1022,11 +1047,49 @@
             renderCountryOptions();
         }
 
+        function initializeExcludeCountryFilter() {
+            const trigger = document.getElementById('excludeCountryTrigger');
+            const search = document.getElementById('excludeCountrySearch');
+
+            trigger.addEventListener('click', toggleExcludeCountryMenu);
+            trigger.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleExcludeCountryMenu();
+                }
+            });
+
+            search.addEventListener('input', event => {
+                excludeCountrySearchTerm = event.target.value;
+                renderExcludeCountryOptions();
+            });
+
+            search.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeExcludeCountryMenu();
+                    trigger.focus();
+                }
+            });
+
+            document.addEventListener('click', handleExcludeCountryOutsideClick);
+
+            renderExcludeCountryChips();
+            renderExcludeCountryOptions();
+        }
+
         function toggleCountryMenu() {
             if (countryMenuOpen) {
                 closeCountryMenu();
             } else {
                 openCountryMenu();
+            }
+        }
+
+        function toggleExcludeCountryMenu() {
+            if (excludeCountryMenuOpen) {
+                closeExcludeCountryMenu();
+            } else {
+                openExcludeCountryMenu();
             }
         }
 
@@ -1046,6 +1109,22 @@
             }, 0);
         }
 
+        function openExcludeCountryMenu() {
+            excludeCountryMenuOpen = true;
+            const trigger = document.getElementById('excludeCountryTrigger');
+            const menu = document.getElementById('excludeCountryMenu');
+            const search = document.getElementById('excludeCountrySearch');
+
+            trigger.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+            menu.classList.remove('hidden');
+            renderExcludeCountryOptions();
+
+            window.setTimeout(() => {
+                search.focus();
+            }, 0);
+        }
+
         function closeCountryMenu() {
             countryMenuOpen = false;
             const trigger = document.getElementById('countryTrigger');
@@ -1056,20 +1135,50 @@
             menu.classList.add('hidden');
         }
 
+        function closeExcludeCountryMenu() {
+            excludeCountryMenuOpen = false;
+            const trigger = document.getElementById('excludeCountryTrigger');
+            const menu = document.getElementById('excludeCountryMenu');
+
+            trigger.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            menu.classList.add('hidden');
+        }
+
         function handleCountryOutsideClick(event) {
+            if (!countryMenuOpen) return;
+            // The clicked option is re-rendered (detached) on selection. Treat a
+            // detached target as an inside click so the menu stays open for multi-pick.
+            if (!event.target.isConnected) return;
             const countrySelect = document.getElementById('countrySelect');
             if (countrySelect && !countrySelect.contains(event.target)) {
                 closeCountryMenu();
             }
         }
 
+        function handleExcludeCountryOutsideClick(event) {
+            if (!excludeCountryMenuOpen) return;
+            // See handleCountryOutsideClick: ignore detached targets from re-render.
+            if (!event.target.isConnected) return;
+            const excludeCountrySelect = document.getElementById('excludeCountrySelect');
+            if (excludeCountrySelect && !excludeCountrySelect.contains(event.target)) {
+                closeExcludeCountryMenu();
+            }
+        }
+
         function renderCountryChips() {
             const chipArea = document.getElementById('countryChipArea');
-            const placeholder = document.getElementById('countryPlaceholder');
 
             chipArea.innerHTML = '';
 
             if (filters.country.length === 0) {
+                // Recreate the placeholder each time: the previous placeholder
+                // element was detached by the innerHTML clear above, so it can no
+                // longer be found via getElementById.
+                const placeholder = document.createElement('span');
+                placeholder.id = 'countryPlaceholder';
+                placeholder.className = 'country-placeholder';
+                placeholder.textContent = 'Select countries';
                 chipArea.appendChild(placeholder);
                 return;
             }
@@ -1089,6 +1198,43 @@
                 removeButton.addEventListener('click', event => {
                     event.stopPropagation();
                     toggleCountrySelection(country);
+                });
+
+                chip.appendChild(label);
+                chip.appendChild(removeButton);
+                chipArea.appendChild(chip);
+            });
+        }
+
+        function renderExcludeCountryChips() {
+            const chipArea = document.getElementById('excludeCountryChipArea');
+
+            chipArea.innerHTML = '';
+
+            if (filters.excludeCountry.length === 0) {
+                const placeholder = document.createElement('span');
+                placeholder.id = 'excludeCountryPlaceholder';
+                placeholder.className = 'country-placeholder';
+                placeholder.textContent = 'Select countries to exclude';
+                chipArea.appendChild(placeholder);
+                return;
+            }
+
+            filters.excludeCountry.forEach(country => {
+                const chip = document.createElement('span');
+                chip.className = 'country-chip';
+
+                const label = document.createElement('span');
+                label.textContent = country;
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'country-chip-remove';
+                removeButton.setAttribute('aria-label', `Remove ${country}`);
+                removeButton.textContent = 'x';
+                removeButton.addEventListener('click', event => {
+                    event.stopPropagation();
+                    toggleExcludeCountrySelection(country);
                 });
 
                 chip.appendChild(label);
@@ -1125,7 +1271,49 @@
                     optionButton.appendChild(checkmark);
                 }
 
-                optionButton.addEventListener('click', () => toggleCountrySelection(country));
+                optionButton.addEventListener('click', event => {
+                    // Stop propagation so the document outside-click handler does
+                    // not see this click. Without this, the re-render below detaches
+                    // event.target, contains() returns false, and the menu closes.
+                    event.stopPropagation();
+                    toggleCountrySelection(country);
+                });
+                optionsContainer.appendChild(optionButton);
+            });
+        }
+
+        function renderExcludeCountryOptions() {
+            const optionsContainer = document.getElementById('excludeCountryOptions');
+            const selectedCountries = new Set(filters.excludeCountry);
+            const query = excludeCountrySearchTerm.trim().toLowerCase();
+            const matches = excludeCountryOptions.filter(country => country.toLowerCase().includes(query));
+
+            optionsContainer.innerHTML = '';
+
+            if (matches.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'country-empty';
+                emptyState.textContent = 'No countries found';
+                optionsContainer.appendChild(emptyState);
+                return;
+            }
+
+            matches.forEach(country => {
+                const optionButton = document.createElement('button');
+                optionButton.type = 'button';
+                optionButton.className = `country-option${selectedCountries.has(country) ? ' selected' : ''}`;
+                optionButton.textContent = country;
+
+                if (selectedCountries.has(country)) {
+                    const checkmark = document.createElement('span');
+                    checkmark.textContent = 'Selected';
+                    optionButton.appendChild(checkmark);
+                }
+
+                optionButton.addEventListener('click', event => {
+                    event.stopPropagation();
+                    toggleExcludeCountrySelection(country);
+                });
                 optionsContainer.appendChild(optionButton);
             });
         }
@@ -1148,6 +1336,18 @@
 
             renderCountryChips();
             renderCountryOptions();
+            updateFilterCount();
+        }
+
+        function toggleExcludeCountrySelection(country) {
+            if (filters.excludeCountry.includes(country)) {
+                filters.excludeCountry = filters.excludeCountry.filter(item => item !== country);
+            } else {
+                filters.excludeCountry = [...filters.excludeCountry, country];
+            }
+
+            renderExcludeCountryChips();
+            renderExcludeCountryOptions();
             updateFilterCount();
         }
 
@@ -1260,6 +1460,7 @@
                 projectLength: ['Less than one month', '1 to 3 months', '3 to 6 months', 'More than 6 months'],
                 hoursPerWeek: ['Less than 30 hrs/week', 'More than 30 hrs/week'],
                 country: [allCountriesOption],
+                excludeCountry: [],
                 hourlyMinimum: '',
                 fixedPriceMinimum: ''
             };
@@ -1275,6 +1476,9 @@
             document.getElementById('countrySearch').value = '';
             countrySearchTerm = '';
             closeCountryMenu();
+            document.getElementById('excludeCountrySearch').value = '';
+            excludeCountrySearchTerm = '';
+            closeExcludeCountryMenu();
 
             // Reset all filter button states
             Object.keys(filterOptions).forEach(filterType => {
@@ -1283,6 +1487,8 @@
 
             renderCountryChips();
             renderCountryOptions();
+            renderExcludeCountryChips();
+            renderExcludeCountryOptions();
             updateFilterCount(); // Update the count display
         }
 
@@ -1297,6 +1503,7 @@
             if (filters.projectLength.length < filterOptions.projectLength.length) count++; // Count if any project length is deselected
             if (filters.hoursPerWeek.length < filterOptions.hoursPerWeek.length) count++; // Count if any hours per week is deselected
             if (filters.country.some(country => country !== allCountriesOption)) count++; // Count only specific country selections
+            if (filters.excludeCountry && filters.excludeCountry.length > 0) count++; // Count if any excluded country is selected
             if (filters.hourlyMinimum) count++; // Count if hourly minimum is set
             if (filters.fixedPriceMinimum) count++; // Count if fixed-price minimum is set
 
@@ -1379,6 +1586,32 @@
                     document.getElementById('countrySearch').value = '';
                     renderCountryChips();
                     renderCountryOptions();
+                }
+
+                // Exclude Country (multi-select, blank by default, no "All" option)
+                const rawExcludeCountry = webhookFilters.hasOwnProperty('exclude_country')
+                    ? webhookFilters.exclude_country
+                    : webhookFilters.excludeCountry;
+                if (Array.isArray(rawExcludeCountry)) {
+                    filters.excludeCountry = rawExcludeCountry.filter(country => country !== allCountriesOption && excludeCountryOptions.includes(country));
+                    excludeCountrySearchTerm = '';
+                    document.getElementById('excludeCountrySearch').value = '';
+                    renderExcludeCountryChips();
+                    renderExcludeCountryOptions();
+                } else if (typeof rawExcludeCountry === 'string' && rawExcludeCountry.trim() !== '') {
+                    const single = rawExcludeCountry.trim();
+                    filters.excludeCountry = excludeCountryOptions.includes(single) ? [single] : [];
+                    excludeCountrySearchTerm = '';
+                    document.getElementById('excludeCountrySearch').value = '';
+                    renderExcludeCountryChips();
+                    renderExcludeCountryOptions();
+                } else if (webhookFilters.hasOwnProperty('exclude_country') || webhookFilters.hasOwnProperty('excludeCountry')) {
+                    // Blank / null / empty string means no exclusions.
+                    filters.excludeCountry = [];
+                    excludeCountrySearchTerm = '';
+                    document.getElementById('excludeCountrySearch').value = '';
+                    renderExcludeCountryChips();
+                    renderExcludeCountryOptions();
                 }
 
                 // Hourly Minimum
@@ -1466,6 +1699,7 @@
                 projectLength: filters.projectLength,
                 hoursPerWeek: filters.hoursPerWeek,
                 country: filters.country.includes(allCountriesOption) ? [] : filters.country,
+                exclude_country: filters.excludeCountry || [],
                 hourlyMinimum: filters.hourlyMinimum,
                 fixedPriceMinimum: filters.fixedPriceMinimum
             };
